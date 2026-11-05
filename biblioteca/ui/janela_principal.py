@@ -356,4 +356,101 @@ class JanelaBiblioteca(QMainWindow):
         return frame
     
     
+    def dados_formulario(self):
+        return (
+        self.campo_titulo.text(),
+        self.campo_autor.text(),
+        self.campo_ano.value(),
+        self.campo_isbn.text(),
+        )
+    
+    
+    def cadastrar_livro(self):
+        try:
+            servicos.cadastrar_livro(
+                self.conexao,
+                *self.dados_formulario(),
+            )
+
+        except servicos.ValidacaoErro as erro:
+            self.exibir_aviso(str(erro))
+            return
+
+        titulo = (
+            self.campo_titulo
+            .text()
+            .strip()
+        )
+
+        self.limpar_campos(
+            mensagem=False
+        )
+        self.mostrar_todos(
+            mensagem=False
+        )
+
+        self.definir_mensagem(
+            f'Livro "{titulo}" cadastrado '
+            f"com sucesso.",
+            "sucesso",
+        )
+        
+        
+    def pesquisar_livros(self):
+        termo = " ".join(
+            self.campo_titulo
+            .text()
+            .split()
+        )
+
+        if not termo:
+            termo = " ".join(
+                self.campo_autor
+                .text()
+                .split()
+            )
+
+        if not termo:
+            self.exibir_aviso(
+                "Digite parte do título ou "
+                "do autor no formulário."
+            )
+            return
+
+        livros = repo.pesquisar_livros(
+            self.conexao,
+            termo,
+        )
+
+        self.preencher_tabela(livros)
+
+        if livros:
+            self.definir_mensagem(
+                f"{len(livros)} livro(s) encontrado(s).",
+                "sucesso",
+            )
+        else:
+            self.definir_mensagem(
+                "Nenhum livro encontrado.",
+                "aviso",
+            )
+            
+            
+    def mostrar_todos(
+        self,
+        mensagem=True,
+    ):
+        livros = repo.listar_livros(
+            self.conexao
+        )
+
+        self.preencher_tabela(livros)
+
+        if mensagem:
+            self.definir_mensagem(
+                "Todos os livros estão sendo exibidos.",
+                "normal",
+            )
+            
+            
     

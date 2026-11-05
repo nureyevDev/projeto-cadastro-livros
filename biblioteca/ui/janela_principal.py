@@ -38,8 +38,8 @@ class JanelaBiblioteca(QMainWindow):
         self.mostrar_todos()
         
         
-        def montar_interface(self):
-            area_central = QWidget()
+    def montar_interface(self):
+        area_central = QWidget()
 
         layout_principal = QVBoxLayout(
             area_central
@@ -80,6 +80,7 @@ class JanelaBiblioteca(QMainWindow):
 
         self.setCentralWidget(area_central)
         
+        
     def criar_cabecalho(self):
         frame = QFrame()
         frame.setObjectName("cabecalho")
@@ -87,13 +88,12 @@ class JanelaBiblioteca(QMainWindow):
         layout = QVBoxLayout(frame)
 
         titulo = QLabel(
-        "Cadastro de Livros"
+            "Cadastro de Livros"
         )
         titulo.setObjectName("titulo")
 
         subtitulo = QLabel(
-            "Cadastro e manutenção do acervo "
-            "da biblioteca com SQLite."
+            "Cadastro e manutenção do acervo."
         )
         subtitulo.setObjectName(
             "subtitulo"
@@ -131,12 +131,12 @@ class JanelaBiblioteca(QMainWindow):
 
         self.campo_titulo = QLineEdit()
         self.campo_titulo.setPlaceholderText(
-            "Ex.: Dom Casmurro"
+            "Ex.: Beira Rio Beira Vida"
         )
 
         self.campo_autor = QLineEdit()
         self.campo_autor.setPlaceholderText(
-            "Ex.: Machado de Assis"
+            "Ex.: Assis Brasil"
         )
 
         self.campo_ano = QSpinBox()
@@ -358,13 +358,13 @@ class JanelaBiblioteca(QMainWindow):
     
     def dados_formulario(self):
         return (
-        self.campo_titulo.text(),
-        self.campo_autor.text(),
-        self.campo_ano.value(),
-        self.campo_isbn.text(),
+            self.campo_titulo.text(),
+            self.campo_autor.text(),
+            self.campo_ano.value(),
+            self.campo_isbn.text(),
         )
-    
-    
+        
+        
     def cadastrar_livro(self):
         try:
             servicos.cadastrar_livro(
@@ -453,4 +453,347 @@ class JanelaBiblioteca(QMainWindow):
             )
             
             
-    
+    def atualizar_livro(self):
+        if self.livro_selecionado_id is None:
+            self.exibir_aviso(
+                "Selecione um livro para atualizar."
+            )
+            return
+
+        try:
+            servicos.editar_livro(
+                self.conexao,
+                self.livro_selecionado_id,
+                *self.dados_formulario(),
+            )
+
+        except servicos.ValidacaoErro as erro:
+            self.exibir_aviso(str(erro))
+            return
+
+        self.mostrar_todos(
+            mensagem=False
+        )
+        self.limpar_campos(
+            mensagem=False
+        )
+
+        self.definir_mensagem(
+            "Livro atualizado com sucesso.",
+            "sucesso",
+        )
+        
+        
+    def excluir_livro(self):
+        if self.livro_selecionado_id is None:
+            self.exibir_aviso(
+                "Selecione um livro para excluir."
+            )
+            return
+
+        resposta = QMessageBox.question(
+            self,
+            "Confirmar exclusão",
+            "Deseja realmente excluir "
+            "o livro selecionado?",
+            (
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No
+            ),
+            QMessageBox.StandardButton.No,
+        )
+
+        if resposta != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            servicos.remover_livro(
+                self.conexao,
+                self.livro_selecionado_id,
+            )
+
+        except servicos.ValidacaoErro as erro:
+            self.exibir_aviso(str(erro))
+            return
+
+        self.mostrar_todos(
+            mensagem=False
+        )
+        self.limpar_campos(
+            mensagem=False
+        )
+
+        self.definir_mensagem(
+            "Livro excluído com sucesso.",
+            "sucesso",
+        )
+        
+        
+    def preencher_tabela(self, livros):
+        self.tabela.setRowCount(
+            len(livros)
+        )
+
+        for linha, livro in enumerate(livros):
+            valores = [
+                livro["id"],
+                livro["titulo"],
+                livro["autor"],
+                livro["ano"] or "",
+                livro["isbn"],
+            ]
+
+            for coluna, valor in enumerate(valores):
+                item = QTableWidgetItem(
+                    str(valor)
+                )
+
+                if coluna in (0, 3):
+                    item.setTextAlignment(
+                        Qt.AlignmentFlag.AlignCenter
+                    )
+
+                self.tabela.setItem(
+                    linha,
+                    coluna,
+                    item,
+                )
+
+        self.tabela.clearSelection()
+
+        self.contador.setText(
+            f"{len(livros)} livro(s)"
+        )
+
+    def carregar_livro_selecionado(self):
+        linha = self.tabela.currentRow()
+
+        if linha < 0:
+            return
+
+        self.livro_selecionado_id = int(
+            self.tabela.item(
+                linha,
+                0,
+            ).text()
+        )
+
+        self.campo_titulo.setText(
+            self.tabela.item(
+                linha,
+                1,
+            ).text()
+        )
+
+        self.campo_autor.setText(
+            self.tabela.item(
+                linha,
+                2,
+            ).text()
+        )
+
+        texto_ano = self.tabela.item(
+            linha,
+            3,
+        ).text()
+
+        self.campo_ano.setValue(
+            int(texto_ano)
+            if texto_ano
+            else 0
+        )
+
+        self.campo_isbn.setText(
+            self.tabela.item(
+                linha,
+                4,
+            ).text()
+        )
+
+        self.definir_mensagem(
+            "Livro selecionado. "
+            "Você pode atualizar ou excluir.",
+            "normal",
+        )
+        
+        
+    def limpar_campos(
+        self,
+        mensagem=True,
+    ):
+        self.livro_selecionado_id = None
+
+        self.campo_titulo.clear()
+        self.campo_autor.clear()
+        self.campo_ano.setValue(0)
+        self.campo_isbn.clear()
+
+        self.tabela.clearSelection()
+        self.campo_titulo.setFocus()
+
+        if mensagem:
+            self.definir_mensagem(
+                "Campos limpos.",
+                "normal",
+            )
+
+    def exibir_aviso(self, texto):
+        self.definir_mensagem(
+            texto,
+            "aviso",
+        )
+
+        QMessageBox.warning(
+            self,
+            "Cadastro de livros",
+            texto,
+        )
+
+    def definir_mensagem(
+        self,
+        texto,
+        tipo,
+    ):
+        self.mensagem.setText(texto)
+        self.mensagem.setProperty(
+            "tipo",
+            tipo,
+        )
+
+        self.mensagem.style().unpolish(
+            self.mensagem
+        )
+        self.mensagem.style().polish(
+            self.mensagem
+        )
+        
+        
+    def aplicar_estilo(self):
+        self.setStyleSheet(
+            """
+            QMainWindow {
+                background-color: #101827;
+            }
+
+            QWidget {
+                color: #f1f5fb;
+                font-family: "Segoe UI";
+                font-size: 10pt;
+            }
+
+            QFrame#cabecalho,
+            QFrame#cartao {
+                background-color: #182338;
+                border: 1px solid #34435e;
+                border-radius: 11px;
+                padding: 12px;
+            }
+
+            QLabel#titulo {
+                font-family: "Segoe UI Semibold";
+                font-size: 22pt;
+                color: #ffffff;
+            }
+
+            QLabel#subtitulo,
+            QLabel#contador {
+                color: #b4c0d4;
+            }
+
+            QLabel#tituloSecao {
+                font-family: "Segoe UI Semibold";
+                font-size: 12pt;
+            }
+
+            QLabel#mensagem {
+                background-color: #1c3155;
+                color: #dce9ff;
+                border: 1px solid #466ca6;
+                border-radius: 6px;
+                padding: 9px;
+            }
+
+            QLabel#mensagem[tipo="sucesso"] {
+                background-color: #143b32;
+                color: #d7f4e8;
+                border-color: #287c6d;
+            }
+
+            QLabel#mensagem[tipo="aviso"] {
+                background-color: #4b2d24;
+                color: #ffe4dc;
+                border-color: #dc5a64;
+            }
+
+            QLineEdit,
+            QSpinBox {
+                background-color: #111b2c;
+                color: #f1f5fb;
+                border: 1px solid #34435e;
+                border-radius: 7px;
+                padding: 8px;
+                min-height: 22px;
+            }
+
+            QLineEdit:focus,
+            QSpinBox:focus {
+                border: 2px solid #82aaff;
+            }
+
+            QPushButton {
+                background-color: #263550;
+                color: #f1f5fb;
+                border: 1px solid #465878;
+                border-radius: 7px;
+                padding: 8px 14px;
+                min-height: 24px;
+            }
+
+            QPushButton:hover {
+                background-color: #344764;
+            }
+
+            QPushButton#botaoPrimario {
+                background-color: #3867d6;
+                border-color: #4b7bec;
+                font-family: "Segoe UI Semibold";
+            }
+
+            QPushButton#botaoPrimario:hover {
+                background-color: #4b7bec;
+            }
+
+            QPushButton#botaoPerigo {
+                background-color: #5b2a32;
+                color: #ffdce0;
+                border-color: #8c3e49;
+            }
+
+            QTableWidget {
+                background-color: #111b2c;
+                alternate-background-color: #1d2a42;
+                color: #f1f5fb;
+                gridline-color: #34435e;
+                border: 1px solid #34435e;
+                border-radius: 7px;
+            }
+
+            QTableWidget::item {
+                padding: 7px;
+            }
+
+            QTableWidget::item:selected {
+                background-color: #294b7a;
+                color: #ffffff;
+            }
+
+            QHeaderView::section {
+                background-color: #263550;
+                color: #ffffff;
+                border: none;
+                border-right: 1px solid #34435e;
+                padding: 8px;
+                font-family: "Segoe UI Semibold";
+            }
+            """
+        )

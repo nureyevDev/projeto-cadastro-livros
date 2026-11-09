@@ -1,3 +1,6 @@
+from PySide6.QtGui import QAction, QActionGroup
+from PySide6.QtWidgets import QApplication 
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -34,10 +37,44 @@ class JanelaBiblioteca(QMainWindow):
         self.resize(1040, 660)
 
         self.montar_interface()
-        self.aplicar_estilo()
+        self.montar_menu_temas()
+        self.aplicar_tema("escuro")
         self.mostrar_todos()
         
         
+    def montar_menu_temas(self):
+        menu_exibir = self.menuBar().addMenu("&Exibir")
+        menu_temas = menu_exibir.addMenu("&Tema")
+        
+        self.grupo_temas =QActionGroup(self)
+        self.grupo_temas.setExclusive(True)
+        
+        temas = {
+            "claro": "Modo claro",
+            "escuro": "Modo escuro",
+        }
+        
+        for nome, titulo in temas.items():
+            acao = QAction(titulo, self)
+            acao.setCheckable(True)
+            acao.setData(nome)
+            acao.setChecked(nome == "escuro")
+            
+            acao.triggered.connect(
+                lambda marcado, tema=nome:
+                self.aplicar_tema(tema)
+            )
+            
+            self.grupo_temas.addAction(acao)
+            menu_temas.addAction(acao)
+            
+    def aplicar_tema(self, nome_tema):
+        if nome_tema == "claro":
+            self.aplicar_tema_claro()
+        else: 
+            self.aplicar_tema_escuro()
+            
+                            
     def montar_interface(self):
         area_central = QWidget()
 
@@ -668,7 +705,7 @@ class JanelaBiblioteca(QMainWindow):
         )
         
         
-    def aplicar_estilo(self):
+    def aplicar_tema_escuro(self):
         self.setStyleSheet(
             """
             QMainWindow {
@@ -794,6 +831,174 @@ class JanelaBiblioteca(QMainWindow):
                 border-right: 1px solid #34435e;
                 padding: 8px;
                 font-family: "Segoe UI Semibold";
+            }
+            """
+        )
+    
+    def aplicar_tema_claro(self):
+        self.setStyleSheet(
+            """
+            QMainWindow {
+                background-color: #F0FFF0;
+            }
+
+            QWidget {
+                color: #1F2D24;
+                font-family: "Segoe UI";
+                font-size: 10pt;
+            }
+
+            QFrame#cabecalho {
+                background-color: #DDF5E3;
+                border: 1px solid #A9CEB3;
+                border-radius: 12px;
+                padding: 12px;
+            }
+
+            QFrame#cartao {
+                background-color: #FFFFFF;
+                border: 1px solid #BED8C5;
+                border-radius: 10px;
+                padding: 12px;
+            }
+
+            QLabel#titulo {
+                color: #183F2B;
+                font-family: "Segoe UI Semibold";
+                font-size: 22pt;
+            }
+
+            QLabel#subtitulo,
+            QLabel#contador {
+                color: #587060;
+            }
+
+            QLabel#tituloSecao {
+                color: #244D35;
+                font-family: "Segoe UI Semibold";
+                font-size: 12pt;
+            }
+
+            QLabel#mensagem {
+                background-color: #E2F4E6;
+                color: #244D35;
+                border: 1px solid #9CC8A7;
+                border-radius: 6px;
+                padding: 9px;
+            }
+
+            QLabel#mensagem[tipo="sucesso"] {
+                background-color: #D9F2E1;
+                color: #185C32;
+                border-color: #73B987;
+            }
+
+            QLabel#mensagem[tipo="aviso"] {
+                background-color: #FFF0EA;
+                color: #843C2E;
+                border-color: #D79586;
+            }
+
+            QLineEdit,
+            QSpinBox {
+                background-color: #FFFFFF;
+                color: #1F2D24;
+                border: 1px solid #A9C9B1;
+                border-radius: 7px;
+                padding: 8px;
+                min-height: 22px;
+                selection-background-color: #347A4C;
+                selection-color: #FFFFFF;
+            }
+
+            QLineEdit:focus,
+            QSpinBox:focus {
+                border: 2px solid #438A5E;
+            }
+
+            QPushButton {
+                background-color: #E1F1E5;
+                color: #244D35;
+                border: 1px solid #9EC7A8;
+                border-radius: 7px;
+                padding: 8px 14px;
+                min-height: 24px;
+            }
+
+            QPushButton:hover {
+                background-color: #CBE6D2;
+                border-color: #73B987;
+            }
+
+            QPushButton:pressed {
+                background-color: #B8DAC1;
+            }
+
+            QPushButton#botaoPrimario {
+                background-color: #347A4C;
+                color: #FFFFFF;
+                border-color: #2C6941;
+                font-family: "Segoe UI Semibold";
+            }
+
+            QPushButton#botaoPrimario:hover {
+                background-color: #28653D;
+            }
+
+            QPushButton#botaoPerigo {
+                background-color: #A94442;
+                color: #FFFFFF;
+                border-color: #8F3634;
+            }
+
+            QPushButton#botaoPerigo:hover {
+                background-color: #8F3634;
+            }
+
+            QTableWidget {
+                background-color: #FFFFFF;
+                alternate-background-color: #EDF8EF;
+                color: #1F2D24;
+                gridline-color: #C4DDCA;
+                border: 1px solid #A9C9B1;
+                border-radius: 7px;
+            }
+
+            QTableWidget::item {
+                padding: 7px;
+            }
+
+            QTableWidget::item:selected {
+                background-color: #70A980;
+                color: #FFFFFF;
+            }
+
+            QHeaderView::section {
+                background-color: #347A4C;
+                color: #FFFFFF;
+                border: none;
+                border-right: 1px solid #5A956C;
+                padding: 8px;
+                font-family: "Segoe UI Semibold";
+            }
+
+            QMenuBar {
+                background-color: #DDF5E3;
+                color: #1F2D24;
+            }
+
+            QMenuBar::item:selected {
+                background-color: #CBE6D2;
+            }
+
+            QMenu {
+                background-color: #FFFFFF;
+                color: #1F2D24;
+                border: 1px solid #A9C9B1;
+            }
+
+            QMenu::item:selected {
+                background-color: #CBE6D2;
             }
             """
         )

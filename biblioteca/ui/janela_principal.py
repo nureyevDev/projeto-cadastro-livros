@@ -531,6 +531,30 @@ class JanelaBiblioteca(QMainWindow):
 
         return painel
     
+    def cadastrar_leitor(self):
+        try:
+            servicos.cadastrar_leitor(
+                self.conexao,
+                self.campo_nome_leitor.text(),
+                self.campo_documento_leitor.text(),
+                self.campo_telefone_leitor.text(),
+            )
+
+        except servicos.ValidacaoErro as erro:
+            self.exibir_aviso(str(erro))
+            return
+
+        self.campo_nome_leitor.clear()
+        self.campo_documento_leitor.clear()
+        self.campo_telefone_leitor.clear()
+
+        self.atualizar_coluna_lateral()
+
+        self.definir_mensagem(
+            "Leitor cadastrado com sucesso.",
+            "sucesso",
+        )
+    
     def criar_tabela(self):
         frame = QFrame()
         frame.setObjectName("cartao")

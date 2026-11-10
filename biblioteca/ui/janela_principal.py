@@ -453,6 +453,85 @@ class JanelaBiblioteca(QMainWindow):
 
         return painel
     
+    def atualizar_coluna_lateral(self):
+        leitores = repo.listar_leitores(
+            self.conexao
+        )
+
+        self.combo_leitor.clear()
+        self.combo_leitor.addItem(
+            "Selecione um leitor",
+            None,
+        )
+
+        for leitor in leitores:
+            self.combo_leitor.addItem(
+                (
+                    f"{leitor['nome']} "
+                    f"({leitor['documento']})"
+                ),
+                leitor["id"],
+            )
+
+        exemplares = (
+            repo.listar_exemplares_disponiveis(
+                self.conexao
+            )
+        )
+
+        self.combo_exemplar.clear()
+        self.combo_exemplar.addItem(
+            "Selecione um exemplar",
+            None,
+        )
+
+        for exemplar in exemplares:
+            self.combo_exemplar.addItem(
+                (
+                    f"{exemplar['titulo']} | "
+                    f"{exemplar['codigo']}"
+                ),
+                exemplar["id"],
+            )
+
+        emprestimos = (
+            repo.listar_emprestimos_abertos(
+                self.conexao
+            )
+        )
+
+        self.tabela_emprestimos.setRowCount(
+            len(emprestimos)
+        )
+
+        for linha, emprestimo in enumerate(
+            emprestimos
+        ):
+            valores = [
+                emprestimo["id"],
+                emprestimo["leitor"],
+                (
+                    f"{emprestimo['titulo']} "
+                    f"({emprestimo['exemplar']})"
+                ),
+            ]
+
+            for coluna, valor in enumerate(valores):
+                self.tabela_emprestimos.setItem(
+                    linha,
+                    coluna,
+                    QTableWidgetItem(str(valor)),
+                )
+
+        agora = QDateTime.currentDateTime()
+
+        self.data_retirada.setDateTime(agora)
+        self.data_devolucao.setDateTime(
+            agora.addDays(7)
+        )
+        
+
+    
     def criar_painel_emprestimos_abertos(self):
         painel = QFrame()
         painel.setObjectName("cartaoLateral")

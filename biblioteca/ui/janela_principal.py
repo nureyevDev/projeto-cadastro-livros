@@ -315,80 +315,143 @@ class JanelaBiblioteca(QMainWindow):
         return layout
     
     # Cria coluna lateral
-        def criar_coluna_lateral(self):
-            lateral = QFrame()
-            lateral.setObjectName("lateral")
+    def criar_coluna_lateral(self):
+        lateral = QFrame()
+        lateral.setObjectName("lateral")
 
-            layout = QVBoxLayout(lateral)
-            layout.setSpacing(14)
+        layout = QVBoxLayout(lateral)
+        layout.setSpacing(14)
 
-            layout.addWidget(
-                self.criar_painel_leitor()
-            )
-            layout.addWidget(
-                self.criar_painel_emprestimo()
-            )
-            layout.addWidget(
-                self.criar_painel_emprestimos_abertos(),
-                1,
-            )
+        layout.addWidget(
+            self.criar_painel_leitor()
+        )
+        layout.addWidget(
+            self.criar_painel_emprestimo()
+        )
+        layout.addWidget(
+            self.criar_painel_emprestimos_abertos(),
+            1,
+        )
 
-            return lateral
+        return lateral
         
 # Painel de cadastro
-        def criar_painel_leitor(self):
-            painel = QFrame()
-            painel.setObjectName("cartaoLateral")
+    def criar_painel_leitor(self):
+        painel = QFrame()
+        painel.setObjectName("cartaoLateral")
 
-            layout = QVBoxLayout(painel)
+        layout = QVBoxLayout(painel)
 
-            titulo = QLabel("Cadastro de leitor")
-            titulo.setObjectName("tituloSecao")
-            layout.addWidget(titulo)
+        titulo = QLabel("Cadastro de leitor")
+        titulo.setObjectName("tituloSecao")
+        layout.addWidget(titulo)
 
-            formulario = QFormLayout()
+        formulario = QFormLayout()
 
-            self.campo_nome_leitor = QLineEdit()
-            self.campo_nome_leitor.setPlaceholderText(
-                "Nome completo"
-            )
+        self.campo_nome_leitor = QLineEdit()
+        self.campo_nome_leitor.setPlaceholderText(
+            "Nome completo"
+        )
 
-            self.campo_documento_leitor = QLineEdit()
-            self.campo_documento_leitor.setPlaceholderText(
-                "CPF ou matrícula"
-            )
+        self.campo_documento_leitor = QLineEdit()
+        self.campo_documento_leitor.setPlaceholderText(
+            "CPF ou matrícula"
+        )
 
-            self.campo_telefone_leitor = QLineEdit()
-            self.campo_telefone_leitor.setPlaceholderText(
-                "Telefone"
-            )
+        self.campo_telefone_leitor = QLineEdit()
+        self.campo_telefone_leitor.setPlaceholderText(
+            "Telefone"
+        )
 
-            formulario.addRow(
-                "Nome *",
-                self.campo_nome_leitor,
-            )
-            formulario.addRow(
-                "Documento *",
-                self.campo_documento_leitor,
-            )
-            formulario.addRow(
-                "Telefone",
-                self.campo_telefone_leitor,
-            )
+        formulario.addRow(
+            "Nome *",
+            self.campo_nome_leitor,
+        )
+        formulario.addRow(
+            "Documento *",
+            self.campo_documento_leitor,
+        )
+        formulario.addRow(
+            "Telefone",
+            self.campo_telefone_leitor,
+        )
 
-            self.botao_cadastrar_leitor = QPushButton(
-                "Cadastrar leitor"
-            )
-            self.botao_cadastrar_leitor.clicked.connect(
-                self.cadastrar_leitor
-            )
+        self.botao_cadastrar_leitor = QPushButton(
+            "Cadastrar leitor"
+        )
+        self.botao_cadastrar_leitor.clicked.connect(
+            self.cadastrar_leitor
+        )
 
-            layout.addLayout(formulario)
-            layout.addWidget(
-                self.botao_cadastrar_leitor
-            )
+        layout.addLayout(formulario)
+        layout.addWidget(
+            self.botao_cadastrar_leitor
+        )
 
-            return painel
+        return painel
+        
+    def criar_painel_emprestimo(self):
+        painel = QFrame()
+        painel.setObjectName("cartaoLateral")
+
+        layout = QVBoxLayout(painel)
+
+        titulo = QLabel("Novo empréstimo")
+        titulo.setObjectName("tituloSecao")
+        layout.addWidget(titulo)
+
+        formulario = QFormLayout()
+
+        self.combo_leitor = QComboBox()
+        self.combo_exemplar = QComboBox()
+
+        self.data_retirada = QDateTimeEdit(
+            QDateTime.currentDateTime()
+        )
+        self.data_retirada.setDisplayFormat(
+            "dd/MM/yyyy HH:mm"
+        )
+        self.data_retirada.setReadOnly(True)
+
+        self.data_devolucao = QDateTimeEdit(
+            QDateTime.currentDateTime().addDays(7)
+        )
+        self.data_devolucao.setDisplayFormat(
+            "dd/MM/yyyy HH:mm"
+        )
+        self.data_devolucao.setReadOnly(True)
+
+        formulario.addRow(
+            "Leitor",
+            self.combo_leitor,
+        )
+        formulario.addRow(
+            "Exemplar",
+            self.combo_exemplar,
+        )
+        formulario.addRow(
+            "Retirada",
+            self.data_retirada,
+        )
+        formulario.addRow(
+            "Previsão",
+            self.data_devolucao,
+        )
+
+        self.botao_emprestar = QPushButton(
+            "Registrar empréstimo"
+        )
+        self.botao_emprestar.setObjectName(
+            "botaoPrimario"
+        )
+        self.botao_emprestar.clicked.connect(
+            self.registrar_emprestimo
+        )
+
+        layout.addLayout(formulario)
+        layout.addWidget(self.botao_emprestar)
+
+        return painel
     
     def criar_tabela(self):
         frame = QFrame()

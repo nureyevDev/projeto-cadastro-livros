@@ -579,6 +579,53 @@ class JanelaBiblioteca(QMainWindow):
             "sucesso",
         )
     
+    def registrar_devolucao(self):
+        linha = self.tabela_emprestimos.currentRow()
+
+        if linha < 0:
+            self.exibir_aviso(
+                "Selecione um empréstimo."
+            )
+            return
+
+        emprestimo_id = int(
+            self.tabela_emprestimos.item(
+                linha,
+                0,
+            ).text()
+        )
+
+        resposta = QMessageBox.question(
+            self,
+            "Confirmar devolução",
+            "Confirmar a devolução do exemplar?",
+            (
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No
+            ),
+            QMessageBox.StandardButton.No,
+        )
+
+        if resposta != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            servicos.registrar_devolucao(
+                self.conexao,
+                emprestimo_id,
+            )
+
+        except servicos.ValidacaoErro as erro:
+            self.exibir_aviso(str(erro))
+            return
+
+        self.atualizar_coluna_lateral()
+
+        self.definir_mensagem(
+            "Devolução registrada com sucesso.",
+            "sucesso",
+        )
+    
     def criar_tabela(self):
         frame = QFrame()
         frame.setObjectName("cartao")

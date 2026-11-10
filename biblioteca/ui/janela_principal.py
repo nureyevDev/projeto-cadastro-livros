@@ -453,6 +453,84 @@ class JanelaBiblioteca(QMainWindow):
 
         return painel
     
+    def criar_painel_emprestimos_abertos(self):
+        painel = QFrame()
+        painel.setObjectName("cartaoLateral")
+
+        layout = QVBoxLayout(painel)
+
+        titulo = QLabel("Empréstimos em aberto")
+        titulo.setObjectName("tituloSecao")
+        layout.addWidget(titulo)
+
+        self.tabela_emprestimos = QTableWidget(
+            0,
+            3,
+        )
+        self.tabela_emprestimos.setHorizontalHeaderLabels(
+            [
+                "ID",
+                "Leitor",
+                "Livro",
+            ]
+        )
+        self.tabela_emprestimos.setSelectionBehavior(
+            QAbstractItemView
+            .SelectionBehavior
+            .SelectRows
+        )
+        self.tabela_emprestimos.setSelectionMode(
+            QAbstractItemView
+            .SelectionMode
+            .SingleSelection
+        )
+        self.tabela_emprestimos.setEditTriggers(
+            QAbstractItemView
+            .EditTrigger
+            .NoEditTriggers
+        )
+        self.tabela_emprestimos.verticalHeader().setVisible(
+            False
+        )
+
+        cabecalho = (
+            self.tabela_emprestimos
+            .horizontalHeader()
+        )
+        cabecalho.setSectionResizeMode(
+            0,
+            QHeaderView
+            .ResizeMode
+            .ResizeToContents,
+        )
+        cabecalho.setSectionResizeMode(
+            1,
+            QHeaderView.ResizeMode.Stretch,
+        )
+        cabecalho.setSectionResizeMode(
+            2,
+            QHeaderView.ResizeMode.Stretch,
+        )
+
+        self.botao_devolver = QPushButton(
+            "Registrar devolução"
+        )
+        self.botao_devolver.setObjectName(
+            "botaoPerigo"
+        )
+        self.botao_devolver.clicked.connect(
+            self.registrar_devolucao
+        )
+
+        layout.addWidget(
+            self.tabela_emprestimos
+        )
+        layout.addWidget(
+            self.botao_devolver
+        )
+
+        return painel
+    
     def criar_tabela(self):
         frame = QFrame()
         frame.setObjectName("cartao")

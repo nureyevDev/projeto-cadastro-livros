@@ -1,4 +1,5 @@
 from biblioteca import repositorio as repo
+from datetime import datetime, timedelta
 
 
 class ValidacaoErro(Exception):
@@ -116,4 +117,93 @@ def remover_livro(
         repo.excluir_livro(
             conexao,
             livro_id,
+        ) 
+
+# Cadastrar leitor
+def cadastrar_leitor(
+    conexao,
+    nome,
+    documento,
+    telefone="",
+):
+    nome = normalizar_texto(nome)
+    documento = "".join(
+        caractere
+        for caractere in (documento or "")
+        if caractere.isalnum()
+    )
+
+    telefone = (telefone or "").strip()
+
+    if not nome:
+        raise ValidacaoErro(
+            "Informe o nome do leitor."
         )
+
+    if not documento:
+        raise ValidacaoErro(
+            "Informe o CPF ou a matrícula do leitor."
+        )
+
+    existente = repo.buscar_leitor_por_documento(
+        conexao,
+        documento,
+    )
+
+    if existente:
+        raise ValidacaoErro(
+            "Já existe um leitor com esse documento."
+        )
+
+    with conexao:
+        return repo.inserir_leitor(
+            conexao,
+            nome,
+            documento,
+            telefone,
+        )
+        
+# Registrar emprestimo
+def registrar_emprestimo(
+    conexao,
+    leitor_id,
+    exemplar_id,
+    dias=7,
+):
+    if leitor_id is None:
+        raise ValidacaoErro(
+            "Selecione um leitor."
+        )
+
+    if exemplar_id is None:
+        raise ValidacaoErro(
+            "Selecione um exemplar disponível."
+        )
+
+    retirada = datetime.now()
+    devolucao_prevista = retirada + timedelta(
+        days=dias
+    )
+
+    with conexao:
+        emprestimo_id = repo.inserir_emprestimo(
+            conexao,
+            leitor_id,
+            exemplar_id,
+            retirada.isoformat(
+                sep=" ",
+                timespec="seconds",
+            ),
+            devolucao_prevista.isoformat(
+                sep=" ",
+                timespec="seconds",
+            ),
+        )
+
+        repo.atualizar_situacao_exemplar(
+            conexao,
+            exemplar_id,
+            "emprestado",
+        )
+
+    return emprestimo_id

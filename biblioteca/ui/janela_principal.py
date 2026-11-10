@@ -1,9 +1,11 @@
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QApplication 
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QDateTime, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
+    QDateTimeEdit,
     QFormLayout,
     QFrame,
     QHBoxLayout,
@@ -75,8 +77,8 @@ class JanelaBiblioteca(QMainWindow):
             self.aplicar_tema_escuro()
             
                             
-    def montar_interface(self):
-        area_central = QWidget()
+        def montar_interface(self):
+            area_central = QWidget()
 
         layout_principal = QVBoxLayout(
             area_central
@@ -92,19 +94,44 @@ class JanelaBiblioteca(QMainWindow):
         layout_principal.addWidget(
             self.criar_cabecalho()
         )
-        layout_principal.addWidget(
+
+        conteudo = QHBoxLayout()
+        conteudo.setSpacing(16)
+
+        coluna_acervo = QVBoxLayout()
+        coluna_acervo.setSpacing(14)
+
+        coluna_acervo.addWidget(
             self.criar_formulario()
         )
-        layout_principal.addLayout(
+        coluna_acervo.addLayout(
             self.criar_botoes()
         )
-        layout_principal.addWidget(
+        coluna_acervo.addWidget(
             self.criar_tabela(),
             1,
         )
 
+        lateral = self.criar_coluna_lateral()
+        lateral.setMinimumWidth(330)
+        lateral.setMaximumWidth(390)
+
+        conteudo.addLayout(
+            coluna_acervo,
+            3,
+        )
+        conteudo.addWidget(
+            lateral,
+            1,
+        )
+
+        layout_principal.addLayout(
+            conteudo,
+            1,
+        )
+
         self.mensagem = QLabel(
-            "Preencha os dados do livro para iniciar."
+            "Preencha os dados para iniciar."
         )
         self.mensagem.setObjectName(
             "mensagem"
@@ -287,6 +314,26 @@ class JanelaBiblioteca(QMainWindow):
 
         return layout
     
+    # Cria coluna lateral
+        def criar_coluna_lateral(self):
+            lateral = QFrame()
+            lateral.setObjectName("lateral")
+
+            layout = QVBoxLayout(lateral)
+            layout.setSpacing(14)
+
+            layout.addWidget(
+                self.criar_painel_leitor()
+            )
+            layout.addWidget(
+                self.criar_painel_emprestimo()
+            )
+            layout.addWidget(
+                self.criar_painel_emprestimos_abertos(),
+                1,
+            )
+
+            return lateral
     
     def criar_tabela(self):
         frame = QFrame()

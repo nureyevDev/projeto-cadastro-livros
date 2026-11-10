@@ -554,6 +554,30 @@ class JanelaBiblioteca(QMainWindow):
             "Leitor cadastrado com sucesso.",
             "sucesso",
         )
+        
+    def registrar_emprestimo(self):
+        leitor_id = self.combo_leitor.currentData()
+        exemplar_id = (
+            self.combo_exemplar.currentData()
+        )
+
+        try:
+            servicos.registrar_emprestimo(
+                self.conexao,
+                leitor_id,
+                exemplar_id,
+            )
+
+        except servicos.ValidacaoErro as erro:
+            self.exibir_aviso(str(erro))
+            return
+
+        self.atualizar_coluna_lateral()
+
+        self.definir_mensagem(
+            "Empréstimo registrado com sucesso.",
+            "sucesso",
+        )
     
     def criar_tabela(self):
         frame = QFrame()

@@ -207,3 +207,36 @@ def registrar_emprestimo(
         )
 
     return emprestimo_id
+
+# Registrar devoluçao
+def registrar_devolucao(
+    conexao,
+    emprestimo_id,
+):
+    emprestimo = repo.obter_emprestimo_aberto(
+        conexao,
+        emprestimo_id,
+    )
+
+    if emprestimo is None:
+        raise ValidacaoErro(
+            "O empréstimo não existe ou já foi encerrado."
+        )
+
+    devolucao = datetime.now().isoformat(
+        sep=" ",
+        timespec="seconds",
+    )
+
+    with conexao:
+        repo.encerrar_emprestimo(
+            conexao,
+            emprestimo_id,
+            devolucao,
+        )
+
+        repo.atualizar_situacao_exemplar(
+            conexao,
+            emprestimo["exemplar_id"],
+            "disponivel",
+        )

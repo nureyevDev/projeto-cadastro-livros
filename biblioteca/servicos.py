@@ -60,10 +60,21 @@ def cadastrar_livro(
     )
 
     with conexao:
-        return repo.inserir_livro(
+        livro_id = repo.inserir_livro(
             conexao,
             *dados,
         )
+
+        codigo = f"EX-{livro_id:04d}-01"
+
+        repo.inserir_exemplar(
+            conexao,
+            livro_id,
+            codigo,
+        )
+
+        return livro_id
+        
 
 
 def editar_livro(

@@ -208,18 +208,16 @@ def inserir_exemplar(
     
     return cursor.lastrowid
 
-def listar_exemplares_disponiveis(
-    conexao,
-):
+def listar_exemplares_disponiveis(conexao):
     return conexao.execute(
         """
         SELECT
             e.id,
             e.codigo,
-            l.tutulo,
+            l.titulo,
             l.autor
         FROM exemplar e
-        JOIN livro l 
+        JOIN livro l
             ON l.id = e.livro_id
         WHERE e.situacao = 'disponivel'
         ORDER BY l.titulo, e.codigo
@@ -311,19 +309,32 @@ def obter_emprestimo_aberto(
           (emprestimo_id,),
     ).fetchone()
     
-    def encerrar_emprestimo(
-        conexao,
-        emprestimo_id,
-        devolucao_real,
-    ):
-        conexao.execute(
-            """
-            UPDATE emprestimo
-            SET devolucao_real = ?
-            WHERE id = ?
-            """,
-            (
-                devolucao_real,
-                emprestimo_id
-            ),
-        )
+def encerrar_emprestimo(
+    conexao,
+    emprestimo_id,
+    devolucao_real,
+):
+    conexao.execute(
+        """
+        UPDATE emprestimo
+        SET devolucao_real = ?
+        WHERE id = ?
+        """,
+        (
+            devolucao_real,
+            emprestimo_id
+        ),
+    )
+    
+def contar_exemplares_do_livro(
+    conexao,
+    livro_id,
+):
+    return conexao.execute(
+        """
+        SELECT COUNT(*)
+        FROM exemplar
+        WHERE livro_id = ?
+        """,
+        (livro_id,),
+    ).fetchone()[0]

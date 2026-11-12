@@ -1,9 +1,10 @@
 from PySide6.QtGui import QAction, QActionGroup
-from PySide6.QtWidgets import QApplication 
+from PySide6.QtWidgets import QApplication
 
 from PySide6.QtCore import QDateTime, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QAbstractSpinBox,
     QComboBox,
     QDateTimeEdit,
     QFormLayout,
@@ -15,6 +16,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QSpinBox,
     QTableWidget,
@@ -114,17 +116,22 @@ class JanelaBiblioteca(QMainWindow):
         )
 
         lateral = self.criar_coluna_lateral()
-        lateral.setMinimumWidth(420)
-        lateral.setMaximumWidth(480)
+        lateral.setMinimumWidth(400)
+
+        rolagem_lateral = QScrollArea()
+        rolagem_lateral.setObjectName("rolagemLateral")
+        rolagem_lateral.setWidget(lateral)
+        rolagem_lateral.setWidgetResizable(True)
+        rolagem_lateral.setFrameShape(QFrame.Shape.NoFrame)
+        rolagem_lateral.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
         conteudo.addLayout(
             coluna_acervo,
             5,
         )
 
-        conteudo.addWidget(
-            lateral,
-            2,
-        )
+        conteudo.addWidget(rolagem_lateral, 2)
 
         layout_principal.addLayout(
             conteudo,
@@ -143,13 +150,6 @@ class JanelaBiblioteca(QMainWindow):
 
         self.setCentralWidget(area_central)
 
-    def criar_cabecalho(self):
-        frame = QFrame()
-        frame.setObjectName("cabecalho")
-
-        # restante do método...
-        
-        
     def criar_cabecalho(self):
         frame = QFrame()
         frame.setObjectName("cabecalho")
@@ -213,6 +213,9 @@ class JanelaBiblioteca(QMainWindow):
         self.campo_ano.setSpecialValueText(
             "Não informado"
         )
+        self.campo_ano.setButtonSymbols(
+            QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
 
         self.campo_isbn = QLineEdit()
         self.campo_isbn.setPlaceholderText(
@@ -271,10 +274,13 @@ class JanelaBiblioteca(QMainWindow):
         self.botao_excluir.setObjectName(
             "botaoPerigo"
         )
-
+        
         self.botao_limpar = QPushButton(
             "Limpar"
         )
+
+        self.botao_atualizar.setEnabled(False)
+        self.botao_excluir.setEnabled(False)
 
         layout.addWidget(
             self.botao_cadastrar
@@ -427,6 +433,9 @@ class JanelaBiblioteca(QMainWindow):
             "dd/MM/yyyy HH:mm"
         )
         self.data_retirada.setReadOnly(True)
+        self.data_retirada.setButtonSymbols(
+            QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
 
         self.data_devolucao = QDateTimeEdit(
             QDateTime.currentDateTime().addDays(7)
@@ -435,6 +444,9 @@ class JanelaBiblioteca(QMainWindow):
             "dd/MM/yyyy HH:mm"
         )
         self.data_devolucao.setReadOnly(True)
+        self.data_devolucao.setButtonSymbols(
+            QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
 
         formulario.addRow(
             "Leitor",
@@ -1004,6 +1016,7 @@ class JanelaBiblioteca(QMainWindow):
         
         
     def preencher_tabela(self, livros):
+        self.livro_selecionado_id = None
         self.tabela.setRowCount(
             len(livros)
         )
@@ -1034,6 +1047,9 @@ class JanelaBiblioteca(QMainWindow):
                 )
 
         self.tabela.clearSelection()
+
+        self.botao_atualizar.setEnabled(False)
+        self.botao_excluir.setEnabled(False)
 
         self.contador.setText(
             f"{len(livros)} livro(s)"
@@ -1084,6 +1100,9 @@ class JanelaBiblioteca(QMainWindow):
             ).text()
         )
 
+        self.botao_atualizar.setEnabled(True)
+        self.botao_excluir.setEnabled(True)
+
         self.definir_mensagem(
             "Livro selecionado. "
             "Você pode atualizar ou excluir.",
@@ -1096,6 +1115,8 @@ class JanelaBiblioteca(QMainWindow):
         mensagem=True,
     ):
         self.livro_selecionado_id = None
+        self.botao_atualizar.setEnabled(False)
+        self.botao_excluir.setEnabled(False)
 
         self.campo_titulo.clear()
         self.campo_autor.clear()
@@ -1166,6 +1187,45 @@ class JanelaBiblioteca(QMainWindow):
             QFrame#lateral {
                 background-color: transparent;
                 border: none;
+            }
+
+            QScrollArea#rolagemLateral {
+                background-color: transparent;
+                border: none;
+            }
+
+            QScrollArea#rolagemLateral > QWidget > QWidget {
+                background-color: transparent;
+            }
+
+            QMenuBar {
+                background-color: #182338;
+                color: #f1f5fb;
+                border-bottom: 1px solid #34435e;
+            }
+
+            QMenuBar::item {
+                background-color: transparent;
+                padding: 7px 12px;
+            }
+
+            QMenuBar::item:selected {
+                background-color: #263550;
+            }
+
+            QMenu {
+                background-color: #182338;
+                color: #f1f5fb;
+                border: 1px solid #34435e;
+                padding: 5px;
+            }
+
+            QMenu::item {
+                padding: 7px 28px 7px 12px;
+            }
+
+            QMenu::item:selected {
+                background-color: #344764;
             }
 
             QFrame#cartaoLateral {
@@ -1258,6 +1318,35 @@ class JanelaBiblioteca(QMainWindow):
                 background-color: #5b2a32;
                 color: #ffdce0;
                 border-color: #8c3e49;
+            }
+
+            QPushButton:disabled {
+                background-color: #1b263a;
+                color: #71809a;
+                border-color: #2d3a52;
+            }
+
+            QComboBox QAbstractItemView {
+                background-color: #111b2c;
+                color: #f1f5fb;
+                border: 1px solid #34435e;
+                selection-background-color: #294b7a;
+                selection-color: #ffffff;
+                outline: none;
+            }
+
+            QAbstractSpinBox::up-button,
+            QAbstractSpinBox::down-button {
+                width: 0px;
+                height: 0px;
+                border: none;
+            }
+
+            QAbstractSpinBox::up-arrow,
+            QAbstractSpinBox::down-arrow {
+                image: none;
+                width: 0px;
+                height: 0px;
             }
 
             QTableWidget {

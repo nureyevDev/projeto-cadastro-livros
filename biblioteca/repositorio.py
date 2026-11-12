@@ -134,11 +134,10 @@ def inserir_leitor(
     nome,
     documento,
     telefone,
-    
 ):
     cursor = conexao.execute(
         """
-        ISERT INTO leitor (
+        INSERT INTO leitor (
             nome,
             documento,
             telefone
@@ -165,7 +164,7 @@ def buscar_leitor_por_documento(
             nome,
             documento,
             telefone,
-            ativo,
+            ativo
         FROM leitor
         WHERE documento = ?
         """,
@@ -194,7 +193,7 @@ def inserir_exemplar(
 ):
     cursor = conexao.execute(
         """
-        ISERT INTO exemplar (
+        INSERT INTO exemplar (
             livro_id,
             codigo
         )
@@ -251,7 +250,7 @@ def inserir_emprestimo(
 ):
     cursor = conexao.execute(
         """
-        ISERT INTO emprestimo (
+        INSERT INTO emprestimo (
             leitor_id, 
             exemplar_id,
             retirada,
@@ -262,7 +261,8 @@ def inserir_emprestimo(
         (
             leitor_id,
             exemplar_id,
-            retirada,devolucao_prevista,
+            retirada,
+            devolucao_prevista,
         ),
     )
     

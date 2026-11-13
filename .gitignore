@@ -1,0 +1,76 @@
+# Ambiente Virtual
+# Ambientes virtuais
+.venv/
+venv/
+ENV/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Empacotamento e distribuição
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+MANIFEST.in
+
+# Testes, cobertura e ferramentas
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDEs
+.idea/
+.vscode/
+*.code-workspace
+
+# Banco de dados local
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Variáveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+*~
+*.temp
+
+# Sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
